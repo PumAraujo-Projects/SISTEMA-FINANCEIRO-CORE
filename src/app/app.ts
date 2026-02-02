@@ -16,9 +16,9 @@ const swaggerSpec = swaggerJsdoc({
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "XitiqueFam API",
+      title: "Documentação de Sistema Financeiro",
       version: "1.0.0",
-      description: "API para gerenciar documentação de XitiqueFam",
+      description: "API para gerenciar documentação de Sistema Financeiro",
     },
     components: {
       securitySchemes: {
