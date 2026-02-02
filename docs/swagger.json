@@ -1,9 +1,9 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "XitiqueFam API",
+    "title": "Sistema Financeiro",
     "version": "1.0.0",
-    "description": "API para gerenciar documentação de XitiqueFam"
+    "description": "API para gerenciar Sistema Financeiro"
   },
   "components": {
     "securitySchemes": {
