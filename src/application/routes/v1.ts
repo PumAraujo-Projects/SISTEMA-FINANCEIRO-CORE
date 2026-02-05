@@ -12,6 +12,16 @@ const container = registerDependencies();
 const userController = container.resolve<UserController>(UserController);
 const authController = container.resolve<AuthController>(AuthController);
 
+// Health check endpoint
+routes.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    service: "sistema-financeiro-api",
+    version: process.env.APP_VERSION || "1.0.0"
+  });
+});
+
 // Enum routes
 routes.use(enumRoutes);
 
