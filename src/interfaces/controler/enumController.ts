@@ -71,7 +71,7 @@ export class EnumController {
   async getDistrictsByProvince(req: Request, res: Response, next: NextFunction) {
     try {
       const { province } = req.query;
-      
+
       if (!province || typeof province !== "string") {
         res.status(StatusCodes.BAD_REQUEST).json(
           new ApiResponse(StatusCodes.BAD_REQUEST, "Parâmetro province é obrigatório", null)
@@ -81,9 +81,60 @@ export class EnumController {
 
       const districts = this.enumService.getDistrictsByProvince(province as ProvinceType);
       res.json(new ApiResponse(
-        StatusCodes.OK, 
-        `Distritos da província de ${province} encontrados`, 
+        StatusCodes.OK,
+        `Distritos da província de ${province} encontrados`,
         districts
+      ));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * GET /api/v1/enums/marital-statuses
+   * Get all available marital statuses
+   */
+  async getMaritalStatuses(req: Request, res: Response, next: NextFunction) {
+    try {
+      const maritalStatuses = this.enumService.getMaritalStatuses();
+      res.json(new ApiResponse(
+        StatusCodes.OK,
+        "Estados civis encontrados",
+        maritalStatuses
+      ));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * GET /api/v1/enums/roles
+   * Get all available roles
+   */
+  async getRoles(req: Request, res: Response, next: NextFunction) {
+    try {
+      const roles = this.enumService.getRoles();
+      res.json(new ApiResponse(
+        StatusCodes.OK,
+        "Funções encontradas",
+        roles
+      ));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * GET /api/v1/enums/nationalities
+   * Get all available nationalities
+   */
+  async getNationalities(req: Request, res: Response, next: NextFunction) {
+    try {
+      const nationalities = this.enumService.getNationalities();
+      res.json(new ApiResponse(
+        StatusCodes.OK,
+        "Nacionalidades encontradas",
+        nationalities
       ));
     } catch (error) {
       next(error);
