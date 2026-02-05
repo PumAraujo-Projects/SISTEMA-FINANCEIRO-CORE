@@ -1,5 +1,10 @@
 import { PrismaClient } from "@prisma/client";
+import { Pool } from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
 
-// Prisma 7 lê a URL do banco do prisma.config.ts automaticamente
-// Através da variável de ambiente DATABASE_URL
-export const prisma = new PrismaClient();
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+const adapter = new PrismaPg(pool);
+
+export const prisma = new PrismaClient({ adapter });
