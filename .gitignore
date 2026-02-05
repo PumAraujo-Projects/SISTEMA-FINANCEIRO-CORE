@@ -1,6 +1,17 @@
+# Node
 node_modules/
-.env
-dist/
-build/
+yarn-error.log
+yarn.lock      
 
-/src/generated/prisma
+# Prisma
+.prisma/
+
+# Docker
+dbdata/
+logs/
+uploads/
+
+# Ambiente
+.env
+
+dist/
