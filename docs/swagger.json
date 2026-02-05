@@ -1,9 +1,9 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Sistema Financeiro",
+    "title": "XitiqueFam API",
     "version": "1.0.0",
-    "description": "API para gerenciar Sistema Financeiro"
+    "description": "API para gerenciar documentação de XitiqueFam"
   },
   "components": {
     "securitySchemes": {
@@ -222,15 +222,76 @@
         }
       }
     },
-    "/api/v1/enums/payment-methods": {
+    "/api/v1/enums/districts": {
       "get": {
-        "summary": "Get all available payment methods",
+        "summary": "Get all available districts",
+        "tags": [
+          "Enums"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "provinceCode",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Province code to filter districts (optional)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of districts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "number"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          },
+                          "provinceCode": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/enums/provinces": {
+      "get": {
+        "summary": "Get all available provinces of Mozambique",
         "tags": [
           "Enums"
         ],
         "responses": {
           "200": {
-            "description": "List of payment methods",
+            "description": "List of provinces",
             "content": {
               "application/json": {
                 "schema": {
@@ -257,34 +318,7 @@
                             "type": "string"
                           }
                         }
-                      },
-                      "example": [
-                        {
-                          "id": 1,
-                          "code": "M-pesa",
-                          "value": "M-pesa"
-                        },
-                        {
-                          "id": 2,
-                          "code": "E-mola",
-                          "value": "E-mola"
-                        },
-                        {
-                          "id": 3,
-                          "code": "M-kesh",
-                          "value": "M-kesh"
-                        },
-                        {
-                          "id": 4,
-                          "code": "Millenium Bim",
-                          "value": "Millenium Bim"
-                        },
-                        {
-                          "id": 5,
-                          "code": "BCI",
-                          "value": "BCI"
-                        }
-                      ]
+                      }
                     }
                   }
                 }
@@ -362,15 +396,15 @@
         }
       }
     },
-    "/api/v1/enums/provinces": {
+    "/api/v1/enums/marital-statuses": {
       "get": {
-        "summary": "Get all provinces of Mozambique",
+        "summary": "Get all available marital statuses",
         "tags": [
           "Enums"
         ],
         "responses": {
           "200": {
-            "description": "List of provinces",
+            "description": "List of marital statuses",
             "content": {
               "application/json": {
                 "schema": {
@@ -401,18 +435,23 @@
                       "example": [
                         {
                           "id": 1,
-                          "code": "Maputo",
-                          "value": "Maputo"
+                          "code": "Single",
+                          "value": "Solteiro"
                         },
                         {
                           "id": 2,
-                          "code": "Gaza",
-                          "value": "Gaza"
+                          "code": "Married",
+                          "value": "Casado"
                         },
                         {
                           "id": 3,
-                          "code": "Inhambane",
-                          "value": "Inhambane"
+                          "code": "Divorced",
+                          "value": "Divorciado"
+                        },
+                        {
+                          "id": 4,
+                          "code": "Widowed",
+                          "value": "Viúvo"
                         }
                       ]
                     }
@@ -427,27 +466,15 @@
         }
       }
     },
-    "/api/v1/enums/districts": {
+    "/api/v1/enums/roles": {
       "get": {
-        "summary": "Get all districts for a specific province",
+        "summary": "Get all available roles",
         "tags": [
           "Enums"
         ],
-        "parameters": [
-          {
-            "in": "query",
-            "name": "province",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Province code (e.g., \"Maputo\", \"Gaza\", \"Inhambane\", etc.)",
-            "example": "Maputo"
-          }
-        ],
         "responses": {
           "200": {
-            "description": "List of districts for the specified province",
+            "description": "List of roles",
             "content": {
               "application/json": {
                 "schema": {
@@ -478,18 +505,18 @@
                       "example": [
                         {
                           "id": 1,
-                          "code": "Matola",
-                          "value": "Matola"
+                          "code": "User",
+                          "value": "User"
                         },
                         {
                           "id": 2,
-                          "code": "Maputo",
-                          "value": "Maputo"
+                          "code": "Admin",
+                          "value": "Admin"
                         },
                         {
                           "id": 3,
-                          "code": "Boane",
-                          "value": "Boane"
+                          "code": "Moderator",
+                          "value": "Moderator"
                         }
                       ]
                     }
@@ -498,8 +525,160 @@
               }
             }
           },
-          "400": {
-            "description": "Province parameter is required"
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/enums/nationalities": {
+      "get": {
+        "summary": "Get all available nationalities",
+        "tags": [
+          "Enums"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of nationalities",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "number"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "example": [
+                        {
+                          "id": 1,
+                          "code": "Mozambique",
+                          "value": "Mozambique"
+                        },
+                        {
+                          "id": 2,
+                          "code": "Portugal",
+                          "value": "Portugal"
+                        },
+                        {
+                          "id": 3,
+                          "code": "South Africa",
+                          "value": "South Africa"
+                        },
+                        {
+                          "id": 4,
+                          "code": "Brazil",
+                          "value": "Brazil"
+                        },
+                        {
+                          "id": 5,
+                          "code": "Angola",
+                          "value": "Angola"
+                        },
+                        {
+                          "id": 6,
+                          "code": "Other",
+                          "value": "Other"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/enums/payment-methods": {
+      "get": {
+        "summary": "Get all available payment methods",
+        "tags": [
+          "Enums"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of payment methods",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "number"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "example": [
+                        {
+                          "id": 1,
+                          "code": "M-pesa",
+                          "value": "M-pesa"
+                        },
+                        {
+                          "id": 2,
+                          "code": "E-mola",
+                          "value": "E-mola"
+                        },
+                        {
+                          "id": 3,
+                          "code": "M-kesh",
+                          "value": "M-kesh"
+                        },
+                        {
+                          "id": 4,
+                          "code": "Millenium Bim",
+                          "value": "Millenium Bim"
+                        },
+                        {
+                          "id": 5,
+                          "code": "BCI",
+                          "value": "BCI"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
           },
           "500": {
             "description": "Internal server error"
