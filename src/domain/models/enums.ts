@@ -18,9 +18,24 @@ export type PaymentMethodType = "M-pesa" | "E-mola" | "M-kesh" | "Millenium Bim"
 export type GenderType = "M" | "F" | "Other";
 
 /**
+ * Marital status options available in the system
+ */
+export type MaritalStatusType = "Single" | "Married" | "Divorced" | "Widowed";
+
+/**
+ * Role options available in the system
+ */
+export type RoleType = "User" | "Admin" | "Moderator";
+
+/**
+ * Nationality options available in the system
+ */
+export type NationalityType = "Mozambique" | "Portugal" | "South Africa" | "Brazil" | "Angola" | "Other";
+
+/**
  * Mozambique Province type
  */
-export type ProvinceType = 
+export type ProvinceType =
   | "Maputo"
   | "Gaza"
   | "Inhambane"
@@ -58,6 +73,37 @@ export const PAYMENT_METHODS: PaymentMethodType[] = [
 export const GENDERS: GenderType[] = [
   "M",
   "F",
+  "Other"
+];
+
+/**
+ * List of available marital statuses
+ */
+export const MARITAL_STATUSES: MaritalStatusType[] = [
+  "Single",
+  "Married",
+  "Divorced",
+  "Widowed"
+];
+
+/**
+ * List of available roles
+ */
+export const ROLES: RoleType[] = [
+  "User",
+  "Admin",
+  "Moderator"
+];
+
+/**
+ * List of available nationalities
+ */
+export const NATIONALITIES: NationalityType[] = [
+  "Mozambique",
+  "Portugal",
+  "South Africa",
+  "Brazil",
+  "Angola",
   "Other"
 ];
 
@@ -276,6 +322,46 @@ export function districtToEnumItem(district: DistrictType, id: number): EnumItem
     id,
     code: district.code,
     value: district.value
+  };
+}
+
+/**
+ * Convert marital status type to EnumItem
+ */
+export function maritalStatusToEnumItem(status: MaritalStatusType, id: number): EnumItem {
+  const statusLabels: Record<MaritalStatusType, string> = {
+    "Single": "Solteiro",
+    "Married": "Casado",
+    "Divorced": "Divorciado",
+    "Widowed": "Viúvo"
+  };
+
+  return {
+    id,
+    code: status,
+    value: statusLabels[status]
+  };
+}
+
+/**
+ * Convert role type to EnumItem
+ */
+export function roleToEnumItem(role: RoleType, id: number): EnumItem {
+  return {
+    id,
+    code: role,
+    value: role
+  };
+}
+
+/**
+ * Convert nationality type to EnumItem
+ */
+export function nationalityToEnumItem(nationality: NationalityType, id: number): EnumItem {
+  return {
+    id,
+    code: nationality,
+    value: nationality
   };
 }
 
