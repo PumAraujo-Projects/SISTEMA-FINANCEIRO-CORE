@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { Pool } from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { PRISMA_TOKEN } from "./constants";
 import { container } from "tsyringe";
 import { UserRepository } from "../../domain/repositories/user";
@@ -8,14 +9,13 @@ import { UserService } from "../../application/services/user";
 import { AuthController } from "../../interfaces/controler/authentication";
 
 export function registerDependencies() {
-  // Create Prisma client with the proper adapter configuration
-  const prismaClientOptions = {
-    adapter: new PrismaBetterSqlite3({
-      url: process.env.DATABASE_URL || "file:./dev.db",
-    }),
-  };
-  
-  const prismaClient = new PrismaClient(prismaClientOptions);
+  // Create Prisma client with PostgreSQL adapter
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+  });
+  const adapter = new PrismaPg(pool);
+
+  const prismaClient = new PrismaClient({ adapter });
 
   // Register the instance with a token
   container.registerInstance(PRISMA_TOKEN, prismaClient);
