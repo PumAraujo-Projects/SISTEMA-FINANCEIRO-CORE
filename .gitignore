@@ -1,17 +1,13 @@
-# Node
-node_modules/
-yarn-error.log
-yarn.lock      
-
-# Prisma
-.prisma/
-
-# Docker
-dbdata/
-logs/
-uploads/
-
-# Ambiente
+node_modules
+# Keep environment variables out of version control
 .env
+*.js
+*.js.map
+!package.json
+!package-lock.json
 
+# Diretório de build
 dist/
+build/
+
+/src/generated/prisma
