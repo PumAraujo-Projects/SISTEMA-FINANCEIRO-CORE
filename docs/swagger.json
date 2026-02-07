@@ -1,10 +1,16 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "XitiqueFam API",
+    "title": "Sistema Financeiro API",
     "version": "1.0.0",
-    "description": "API para gerenciar documentação de XitiqueFam"
+    "description": "API para gerenciamento de usuários e autenticação"
   },
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "Servidor local"
+    }
+  ],
   "components": {
     "securitySchemes": {
       "bearerAuth": {
@@ -12,20 +18,125 @@
         "scheme": "bearer",
         "bearerFormat": "JWT"
       }
+    },
+    "schemas": {
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "fullName": { "type": "string" },
+          "email": { "type": "string" },
+          "code": { "type": "string" },
+          "nuit": { "type": "string" },
+          "msisdn": { "type": "string" },
+          "address": { "type": "string" },
+          "dateOfBirth": { "type": "string" },
+          "gender": { "type": "string", "enum": ["M", "F", "Other"] },
+          "role": { "type": "string", "enum": ["Cliente", "Funcionario", "Administrador"] },
+          "notes": { "type": "string" },
+          "isActive": { "type": "boolean" },
+          "registrationDate": { "type": "string" },
+          "nationality": { "type": "string" },
+          "maritalStatus": { "type": "string" },
+          "occupation": { "type": "string" },
+          "preferredPaymentMethod": { "type": "string", "enum": ["M-pesa", "E-mola", "M-kesh", "Millenium Bim", "BCI"] },
+          "loyaltyPoints": { "type": "integer" },
+          "createdAt": { "type": "string" },
+          "updatedAt": { "type": "string" }
+        }
+      }
     }
   },
-  "security": [
-    {
-      "bearerAuth": []
-    }
+  "security": [{ "bearerAuth": [] }],
+  "tags": [
+    { "name": "Authentication", "description": "Endpoints de autenticação" },
+    { "name": "Users", "description": "Endpoints de usuários" },
+    { "name": "Enums", "description": "Enumeradores do sistema" }
   ],
   "paths": {
-    "/api/v1/auth/login": {
+    "/auth/login": {
       "post": {
-        "summary": "User login",
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
+        "summary": "Autenticar usuário e obter token JWT",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": { "type": "string", "format": "email", "example": "usuario@email.com" },
+                  "password": { "type": "string", "example": "senha123" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Login bem-sucedido" },
+          "401": { "description": "Credenciais inválidas" }
+        }
+      }
+    },
+    "/users/create": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Criar um novo usuário",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["fullName", "email", "password", "code", "nuit", "msisdn", "address"],
+                "properties": {
+                  "fullName": { "type": "string", "example": "João Silva" },
+                  "email": { "type": "string", "format": "email", "example": "joao@email.com" },
+                  "password": { "type": "string", "minLength": 8, "example": "senha123" },
+                  "code": { "type": "string", "example": "USR001" },
+                  "nuit": { "type": "string", "example": "123456789" },
+                  "msisdn": { "type": "string", "example": "840000000" },
+                  "address": { "type": "string", "example": "Av. Marginal, Maputo" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Usuário criado com sucesso" },
+          "400": { "description": "Dados inválidos" },
+          "409": { "description": "Email ou código já existem" }
+        }
+      }
+    },
+    "/users/all": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Listar todos os usuários",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Lista de usuários" },
+          "401": { "description": "Não autorizado" }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Buscar usuário por ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Usuário encontrado" },
+          "404": { "description": "Usuário não encontrado" }
+        }
+      },
+      "put": {
+        "tags": ["Users"],
+        "summary": "Atualizar dados do usuário",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
         "requestBody": {
           "required": true,
           "content": {
@@ -33,659 +144,177 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "email": {
-                    "type": "string"
-                  },
-                  "password": {
-                    "type": "string"
-                  }
+                  "fullName": { "type": "string" },
+                  "address": { "type": "string" },
+                  "dateOfBirth": { "type": "string", "format": "date" },
+                  "gender": { "type": "string", "enum": ["M", "F", "Other"] }
                 }
               }
             }
           }
         },
         "responses": {
-          "200": {
-            "description": "Login successful"
-          },
-          "401": {
-            "description": "Invalid credentials"
-          }
+          "200": { "description": "Usuário atualizado com sucesso" },
+          "404": { "description": "Usuário não encontrado" }
+        }
+      },
+      "delete": {
+        "tags": ["Users"],
+        "summary": "Desativar usuário (soft delete)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Usuário desativado com sucesso" },
+          "404": { "description": "Usuário não encontrado" }
         }
       }
     },
-    "/api/v1/users/create": {
-      "post": {
-        "summary": "Create a new user",
-        "tags": [
-          "Users"
-        ],
+    "/users/{id}/password": {
+      "put": {
+        "tags": ["Users"],
+        "summary": "Alterar senha do usuário",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "fullName",
-                  "email",
-                  "password",
-                  "code",
-                  "nuit",
-                  "msisdn",
-                  "address"
-                ],
+                "required": ["currentPassword", "newPassword"],
                 "properties": {
-                  "fullName": {
-                    "type": "string",
-                    "description": "Nome completo do usuário"
-                  },
-                  "email": {
-                    "type": "string",
-                    "description": "Email do usuário"
-                  },
-                  "password": {
-                    "type": "string",
-                    "description": "Senha do usuário"
-                  },
-                  "code": {
-                    "type": "string",
-                    "description": "Código do usuário"
-                  },
-                  "nuit": {
-                    "type": "string",
-                    "description": "NUIT - Número de Identificação Fiscal"
-                  },
-                  "msisdn": {
-                    "type": "string",
-                    "description": "Número de telefone"
-                  },
-                  "address": {
-                    "type": "string",
-                    "description": "Endereço físico"
-                  },
-                  "dateOfBirth": {
-                    "type": "string",
-                    "description": "Data de nascimento (opcional)"
-                  },
-                  "gender": {
-                    "type": "string",
-                    "enum": [
-                      "M",
-                      "F",
-                      "Other"
-                    ],
-                    "description": "Sexo (opcional)"
-                  },
-                  "role": {
-                    "type": "string",
-                    "enum": [
-                      "Cliente",
-                      "Funcionario",
-                      "Administrador"
-                    ],
-                    "description": "Papel do usuário (opcional)"
-                  },
-                  "notes": {
-                    "type": "string",
-                    "description": "Observações adicionais (opcional)"
-                  },
-                  "isActive": {
-                    "type": "boolean",
-                    "description": "Usuário ativo ou não (opcional)"
-                  },
-                  "registrationDate": {
-                    "type": "string",
-                    "description": "Data de registro (opcional)"
-                  },
-                  "nationality": {
-                    "type": "string",
-                    "description": "Nacionalidade (opcional)"
-                  },
-                  "maritalStatus": {
-                    "type": "string",
-                    "description": "Estado civil (opcional)"
-                  },
-                  "occupation": {
-                    "type": "string",
-                    "description": "Profissão (opcional)"
-                  },
-                  "preferredPaymentMethod": {
-                    "type": "string",
-                    "enum": [
-                      "M-pesa",
-                      "E-mola",
-                      "M-kesh",
-                      "Millenium Bim",
-                      "BCI"
-                    ],
-                    "description": "Método de pagamento preferido (opcional)"
-                  },
-                  "loyaltyPoints": {
-                    "type": "number",
-                    "description": "Pontos de fidelidade do cliente (opcional)"
-                  }
+                  "currentPassword": { "type": "string" },
+                  "newPassword": { "type": "string", "minLength": 8 }
                 }
               }
             }
           }
         },
         "responses": {
-          "201": {
-            "description": "User created successfully"
-          },
-          "400": {
-            "description": "Bad request"
-          }
+          "200": { "description": "Senha atualizada com sucesso" },
+          "400": { "description": "Senha atual incorreta" }
         }
       }
     },
-    "/api/v1/users/all": {
-      "get": {
-        "summary": "Get all users",
-        "tags": [
-          "Users"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of all users"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
-    "/api/v1/user/online": {
-      "get": {
-        "summary": "Get current online user",
-        "tags": [
-          "Users"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Current user information"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
-    "/api/v1/enums/districts": {
-      "get": {
-        "summary": "Get all available districts",
-        "tags": [
-          "Enums"
-        ],
-        "parameters": [
-          {
-            "in": "query",
-            "name": "provinceCode",
-            "schema": {
-              "type": "string"
-            },
-            "description": "Province code to filter districts (optional)"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of districts",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusCode": {
-                      "type": "number"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "number"
-                          },
-                          "code": {
-                            "type": "string"
-                          },
-                          "value": {
-                            "type": "string"
-                          },
-                          "provinceCode": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
+    "/users/{id}/email": {
+      "put": {
+        "tags": ["Users"],
+        "summary": "Alterar email do usuário",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email"],
+                "properties": { "email": { "type": "string", "format": "email" } }
               }
             }
-          },
-          "500": {
-            "description": "Internal server error"
           }
+        },
+        "responses": {
+          "200": { "description": "Email atualizado com sucesso" },
+          "409": { "description": "Email já está em uso" }
         }
       }
     },
-    "/api/v1/enums/provinces": {
-      "get": {
-        "summary": "Get all available provinces of Mozambique",
-        "tags": [
-          "Enums"
-        ],
+    "/users/{id}/activate": {
+      "put": {
+        "tags": ["Users"],
+        "summary": "Ativar usuário",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
         "responses": {
-          "200": {
-            "description": "List of provinces",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusCode": {
-                      "type": "number"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "number"
-                          },
-                          "code": {
-                            "type": "string"
-                          },
-                          "value": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error"
-          }
+          "200": { "description": "Usuário ativado com sucesso" },
+          "404": { "description": "Usuário não encontrado" }
         }
       }
     },
-    "/api/v1/enums/genders": {
+    "/user/online": {
       "get": {
-        "summary": "Get all available genders",
-        "tags": [
-          "Enums"
-        ],
+        "tags": ["Users"],
+        "summary": "Obter informações do usuário autenticado",
+        "security": [{ "bearerAuth": [] }],
         "responses": {
-          "200": {
-            "description": "List of genders",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusCode": {
-                      "type": "number"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "number"
-                          },
-                          "code": {
-                            "type": "string"
-                          },
-                          "value": {
-                            "type": "string"
-                          }
-                        }
-                      },
-                      "example": [
-                        {
-                          "id": 1,
-                          "code": "M",
-                          "value": "Masculino"
-                        },
-                        {
-                          "id": 2,
-                          "code": "F",
-                          "value": "Feminino"
-                        },
-                        {
-                          "id": 3,
-                          "code": "Other",
-                          "value": "Outro"
-                        }
-                      ]
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error"
-          }
+          "200": { "description": "Informações do usuário online" },
+          "401": { "description": "Não autorizado" }
         }
       }
     },
-    "/api/v1/enums/marital-statuses": {
+    "/health": {
       "get": {
-        "summary": "Get all available marital statuses",
-        "tags": [
-          "Enums"
-        ],
+        "tags": ["Health"],
+        "summary": "Verificar saúde da API",
         "responses": {
-          "200": {
-            "description": "List of marital statuses",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusCode": {
-                      "type": "number"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "number"
-                          },
-                          "code": {
-                            "type": "string"
-                          },
-                          "value": {
-                            "type": "string"
-                          }
-                        }
-                      },
-                      "example": [
-                        {
-                          "id": 1,
-                          "code": "Single",
-                          "value": "Solteiro"
-                        },
-                        {
-                          "id": 2,
-                          "code": "Married",
-                          "value": "Casado"
-                        },
-                        {
-                          "id": 3,
-                          "code": "Divorced",
-                          "value": "Divorciado"
-                        },
-                        {
-                          "id": 4,
-                          "code": "Widowed",
-                          "value": "Viúvo"
-                        }
-                      ]
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error"
-          }
+          "200": { "description": "API funcionando" }
         }
       }
     },
-    "/api/v1/enums/roles": {
+    "/enums/provinces": {
       "get": {
-        "summary": "Get all available roles",
-        "tags": [
-          "Enums"
-        ],
+        "tags": ["Enums"],
+        "summary": "Obter todas as províncias de Moçambique",
         "responses": {
-          "200": {
-            "description": "List of roles",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusCode": {
-                      "type": "number"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "number"
-                          },
-                          "code": {
-                            "type": "string"
-                          },
-                          "value": {
-                            "type": "string"
-                          }
-                        }
-                      },
-                      "example": [
-                        {
-                          "id": 1,
-                          "code": "User",
-                          "value": "User"
-                        },
-                        {
-                          "id": 2,
-                          "code": "Admin",
-                          "value": "Admin"
-                        },
-                        {
-                          "id": 3,
-                          "code": "Moderator",
-                          "value": "Moderator"
-                        }
-                      ]
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error"
-          }
+          "200": { "description": "Lista de províncias" }
         }
       }
     },
-    "/api/v1/enums/nationalities": {
+    "/enums/districts": {
       "get": {
-        "summary": "Get all available nationalities",
-        "tags": [
-          "Enums"
-        ],
+        "tags": ["Enums"],
+        "summary": "Obter todos os distritos",
+        "parameters": [{ "name": "provinceCode", "in": "query", "schema": { "type": "string" } }],
         "responses": {
-          "200": {
-            "description": "List of nationalities",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusCode": {
-                      "type": "number"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "number"
-                          },
-                          "code": {
-                            "type": "string"
-                          },
-                          "value": {
-                            "type": "string"
-                          }
-                        }
-                      },
-                      "example": [
-                        {
-                          "id": 1,
-                          "code": "Mozambique",
-                          "value": "Mozambique"
-                        },
-                        {
-                          "id": 2,
-                          "code": "Portugal",
-                          "value": "Portugal"
-                        },
-                        {
-                          "id": 3,
-                          "code": "South Africa",
-                          "value": "South Africa"
-                        },
-                        {
-                          "id": 4,
-                          "code": "Brazil",
-                          "value": "Brazil"
-                        },
-                        {
-                          "id": 5,
-                          "code": "Angola",
-                          "value": "Angola"
-                        },
-                        {
-                          "id": 6,
-                          "code": "Other",
-                          "value": "Other"
-                        }
-                      ]
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error"
-          }
+          "200": { "description": "Lista de distritos" }
         }
       }
     },
-    "/api/v1/enums/payment-methods": {
+    "/enums/genders": {
       "get": {
-        "summary": "Get all available payment methods",
-        "tags": [
-          "Enums"
-        ],
+        "tags": ["Enums"],
+        "summary": "Obter todos os gêneros",
         "responses": {
-          "200": {
-            "description": "List of payment methods",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusCode": {
-                      "type": "number"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "number"
-                          },
-                          "code": {
-                            "type": "string"
-                          },
-                          "value": {
-                            "type": "string"
-                          }
-                        }
-                      },
-                      "example": [
-                        {
-                          "id": 1,
-                          "code": "M-pesa",
-                          "value": "M-pesa"
-                        },
-                        {
-                          "id": 2,
-                          "code": "E-mola",
-                          "value": "E-mola"
-                        },
-                        {
-                          "id": 3,
-                          "code": "M-kesh",
-                          "value": "M-kesh"
-                        },
-                        {
-                          "id": 4,
-                          "code": "Millenium Bim",
-                          "value": "Millenium Bim"
-                        },
-                        {
-                          "id": 5,
-                          "code": "BCI",
-                          "value": "BCI"
-                        }
-                      ]
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error"
-          }
+          "200": { "description": "Lista de gêneros" }
+        }
+      }
+    },
+    "/enums/marital-statuses": {
+      "get": {
+        "tags": ["Enums"],
+        "summary": "Obter todos os estados civis",
+        "responses": {
+          "200": { "description": "Lista de estados civis" }
+        }
+      }
+    },
+    "/enums/roles": {
+      "get": {
+        "tags": ["Enums"],
+        "summary": "Obter todos os papéis de usuário",
+        "responses": {
+          "200": { "description": "Lista de papéis" }
+        }
+      }
+    },
+    "/enums/nationalities": {
+      "get": {
+        "tags": ["Enums"],
+        "summary": "Obter todas as nacionalidades",
+        "responses": {
+          "200": { "description": "Lista de nacionalidades" }
+        }
+      }
+    },
+    "/enums/payment-methods": {
+      "get": {
+        "tags": ["Enums"],
+        "summary": "Obter todos os métodos de pagamento",
+        "responses": {
+          "200": { "description": "Lista de métodos de pagamento" }
         }
       }
     }
-  },
-  "tags": []
+  }
 }
