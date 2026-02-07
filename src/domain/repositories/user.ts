@@ -1,76 +1,51 @@
+import { UserCreateData, UserUpdateData } from "../../domain/types/enums";
+import { UserBase } from "../../domain/types/enums";
 
-import { PrismaClient, User } from "@prisma/client";
-import { inject, injectable } from "tsyringe";
-import { UserCreationData } from "../../interfaces/request/user";
-import { PRISMA_TOKEN } from "../../infrastruture/config/constants";
+/**
+ * Interface para o repositório de usuários
+ * Define os métodos que devem ser implementados pelo repositório concreto
+ */
+export interface IUserRepository {
+  // Criação
+  create(data: UserCreateData): Promise<UserBase>;
 
-@injectable()
-export class UserRepository {
-    constructor(@inject(PRISMA_TOKEN) private prisma: PrismaClient) { }
+  // Busca por ID
+  findById(id: string): Promise<UserBase | null>;
 
-    // Criar usuário
-   async create(userData: UserCreationData): Promise<User> {
-    // Validar e converter datas de forma segura
-    const dateOfBirth = userData.dateOfBirth ? new Date(userData.dateOfBirth) : null;
-    const registrationDate = userData.registrationDate ? new Date(userData.registrationDate) : new Date();
-    
-    // Verificar se as datas são válidas
-    if (userData.dateOfBirth && isNaN(dateOfBirth!.getTime())) {
-      throw new Error("Data de nascimento inválida");
-    }
-    if (userData.registrationDate && isNaN(registrationDate.getTime())) {
-      throw new Error("Data de registro inválida");
-    }
+  // Busca por email
+  findByEmail(email: string): Promise<UserBase | null>;
 
-    return await this.prisma.user.create({
-      data: {
-        fullName: userData.fullName,
-        email: userData.email,
-        password: userData.password,
-        code: userData.code,
-        nuit: userData.nuit,
-        msisdn: userData.msisdn,
-        address: userData.address,
-        dateOfBirth: dateOfBirth,
-        gender: userData.gender || null,
-        role: userData.role || "Cliente",
-        notes: userData.notes || "",
-        isActive: userData.isActive ?? true,
-        registrationDate: registrationDate,
-        nationality: userData.nationality || "",
-        maritalStatus: userData.maritalStatus || "",
-        occupation: userData.occupation || "",
-        preferredPaymentMethod: userData.preferredPaymentMethod || "",
-        loyaltyPoints: userData.loyaltyPoints || 0,
-      },
-    });
-  }
+  // Verificar existência por email
+  existsByEmail(email: string): Promise<boolean>;
 
-    // Buscar usuário por ID
-    async findById(id: string): Promise<User | null> {
-        return await this.prisma.user.findUnique({
-            where: { id },
-        });
-    }
+  // Verificar existência por código
+  existsByCode(code: string): Promise<boolean>;
 
-    // Buscar todos os usuários
-    async getUsers(): Promise<User[]> {
-        return await this.prisma.user.findMany({
-            orderBy: { createdAt: "desc" },
-        });
-    }
+  // Verificar existência por NUIT
+  existsByNuit(nuit: string): Promise<boolean>;
 
-    async existsByEmail(email: string): Promise<boolean> {
-        return !!(await this.prisma.user.findFirst({
-            where: { email: email },
-        }));
-    }
+  // Verificar existência por msisdn
+  existsByMsisdn(msisdn: string): Promise<boolean>;
 
-    async findByEmail(email: string): Promise<null | User> {
-        const user = await this.prisma.user.findFirst({
-            where: { email: email },
-        });
-        if (!user) return null;
-        return user;
-    }
+  // Buscar todos os usuários
+  findAll(): Promise<UserBase[]>;
+
+  // Atualizar usuário
+  update(id: string, data: UserUpdateData): Promise<UserBase>;
+
+  // Atualizar senha
+  updatePassword(id: string, hashedPassword: string): Promise<void>;
+
+  // Atualizar email
+  updateEmail(id: string, email: string): Promise<UserBase>;
+
+  // Desativar usuário (soft delete)
+  deactivate(id: string): Promise<void>;
+
+  // Ativar usuário
+  activate(id: string): Promise<void>;
+
+  // Contar usuários
+  count(): Promise<number>;
 }
+
