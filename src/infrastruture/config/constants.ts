@@ -1,1 +1,1 @@
-export const PRISMA_TOKEN = "PrismaClient";
+// export const PRISMA_TOKEN = "PrismaClient";
