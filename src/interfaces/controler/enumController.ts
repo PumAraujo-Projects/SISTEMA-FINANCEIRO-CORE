@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { EnumService } from "../../application/services/enumService";
 import { ApiResponse } from "../response/apiResponse";
-import { ProvinceType } from "../../domain/models/enums";
+import { ProvinceType } from "../../domain/types/enums";
 
 /**
  * Controller for enum-related endpoints
