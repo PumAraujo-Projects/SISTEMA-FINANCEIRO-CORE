@@ -6,7 +6,7 @@ import { AuthLoginData } from "../../interfaces/request/authentication";
 import { UserResponse } from "../../interfaces/response/user";
 import { BadCredentialsException, NotFoundException } from "../../infrastruture/exception/defaultexception";
 import { UserModel } from "../../domain/models/user";
-import { User } from "@prisma/client";
+// import { User } from "@prisma/client";
 
 
 @injectable()
