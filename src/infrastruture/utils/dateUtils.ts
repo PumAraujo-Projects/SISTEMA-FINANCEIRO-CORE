@@ -1,12 +1,12 @@
-import { format, isValid, parse } from "date-fns";
+import { format, isValid } from "date-fns";
 import { BadRequestException, UnprocessableEntityException } from "../exception/defaultexception";
 
-export function convertToISODate(dateInput: Date | string) {
+export function convertToISODate(dateInput: Date | string): string {
   if (dateInput instanceof Date) {
     return format(dateInput, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx");
   }
 
-  const date = parse(dateInput, "yyyy-MM-dd", new Date());
+  const date = new Date(dateInput);
   return format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx");
 }
 
@@ -30,29 +30,16 @@ export function ensureValidISODate(dateInput: any): string {
       }
     }
 
-    let date = parse(dateInput, "yyyy-MM-dd", new Date());
+    const date = new Date(dateInput);
     if (isValid(date)) {
       return format(date, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     }
 
-    date = parse(dateInput, "dd-MM-yyyy", new Date());
-    if (isValid(date)) {
-      return format(date, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-    }
-
-    date = parse(dateInput, "dd-MM-yyyy HH:mm", new Date());
-    if (isValid(date)) {
-      return format(date, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-    }
-
-    date = new Date(dateInput);
-    if (isValid(date)) {
-      return format(date, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-    }
-    throw new BadRequestException(`Invalid date format: ${dateInput}. Expected format: YYYY-MM-DD, DD/MM/YYYY, DD-MM-YYYY HH:mm`);
+    throw new BadRequestException(`Invalid date format: ${dateInput}`);
   }
-  throw new BadRequestException("Date must be a string in format YYYY-MM-DD, DD/MM/YYYY, DD-MM-YYYY HH:mm or a Date object");
+  throw new BadRequestException("Date must be a string or Date object");
 }
+
 export function formatDateToSouthAfrica(dateInput: Date | string): string {
   if (!dateInput) {
     return "";
@@ -76,31 +63,28 @@ export function formatDateToSouthAfrica(dateInput: Date | string): string {
   return `${day}-${month}-${year} ${hours}:${minutes}`;
 }
 
-export function validateDatesRange(startDate: Date, endDate: Date) {
+export function validateDatesRange(startDate: Date, endDate: Date): void {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   if (startDate < today) {
-    const message = "Start date cannot be in the past";
-    throw new UnprocessableEntityException(message);
+    throw new UnprocessableEntityException("Start date cannot be in the past");
   }
 
   if (endDate < today) {
-    const message = "End date cannot be in the past";
-
-    throw new UnprocessableEntityException(message);
+    throw new UnprocessableEntityException("End date cannot be in the past");
   }
 
   if (startDate > endDate) {
-    const message = "Issue with the date range: Start date cannot be after end date";
-    throw new UnprocessableEntityException(message);
+    throw new UnprocessableEntityException("Start date cannot be after end date");
   }
 }
 
 export function formatFilename(originalname: string): string {
   return originalname
-    .replace(/\s+/g, "_") // substitui espaços por underlines
-    .normalize("NFD") // decompõe caracteres acentuados
-    .replace(/[\u0300-\u036f]/g, "") // remove acentos
-    .replace(/[^a-zA-Z0-9._-]/g, ""); // mantém apenas letras, números e alguns caracteres especiais
+    .replace(/\s+/g, "_")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9._-]/g, "");
 }
+
