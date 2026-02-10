@@ -1,15 +1,14 @@
 node_modules
+dist
 # Keep environment variables out of version control
 .env
-*.js
-*.js.map
-!package.json
-!package-lock.json
-
-# Diretório de build
-dist/
-build/
-
+logs
+.logs
+uploads
+.uploads
+.DS_STORE
+/uploads/
+api_logs
+dbdata
 /src/generated/prisma
-
-/src/generated/prisma
+/src/test-prisma.ts
